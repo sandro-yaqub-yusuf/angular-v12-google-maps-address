@@ -74,27 +74,6 @@ export class AppComponent implements OnInit {
     return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 
-  handlePlaceChange(place: google.maps.places.PlaceResult): void {
-    if (place.geometry?.location) {
-      const lat = place.geometry.location.lat();
-      const lng = place.geometry.location.lng();
-
-      this.center = { lat, lng };
-
-      this.listaClusterDados1 = [{
-        id: 999,
-        position: { lat, lng },
-        icon: {
-          url: '../assets/marker.png',
-          scaledSize: { height: 40, width: 40 }
-        },
-        info: `<b>${place.formatted_address}</b>`,
-        horaTitulo: '',
-        hora: ''
-      }];
-    }
-  }
-
   markerMouseOver(marker: any): void {
     marker.marker?.setAnimation(google.maps.Animation.BOUNCE);
   }
@@ -135,6 +114,33 @@ export class AppComponent implements OnInit {
     if (item.id > 0) { this.markers[item.id] = marker; } 
     
     return item;
+  }
+
+  onPlaceChanged(event: any): void {
+    const place = event.detail?.feature;
+
+    if (place && place.geometry?.location) {
+      const lat = place.geometry.location.lat;
+      const lng = place.geometry.location.lng;
+
+      this.center = { lat, lng };
+
+      this.listaClusterDados1 = [{
+        id: 999,
+        position: { lat, lng },
+        icon: {
+          url: '../assets/marker.png',
+          scaledSize: { height: 40, width: 40 }
+        },
+        info: `<div><b>${place.formatted_address || place.displayName?.text}</b></div>`,
+        horaTitulo: '',
+        hora: ''
+      }];
+
+      this.detalhe = [this.listaClusterDados1[0]];
+    } else {
+      console.warn('Endereço inválido ou não encontrado.');
+    }
   }
 
   openMarkerInfo(marker: MapMarker, content: string) {
