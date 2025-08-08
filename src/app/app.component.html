@@ -10,10 +10,11 @@
     </div>
   </div>
   <div class="row w-100 m-0 mt-1 pl-3 pr-3">
-    <div class="col-12">
-      <gmpx-place-autocomplete style="width: 100%;" placeholder="Digite um endereço"
-        (gmpx-placechange)="onPlaceChanged($event)">
-      </gmpx-place-autocomplete>
+    <div class="col-10">
+      <input type="text" [(ngModel)]="endereco" class="form-control" placeholder="Digite o endereço completo" />
+    </div>
+    <div class="col-2">
+      <button class="btn btn-primary w-100" (click)="buscarEndereco()">Buscar</button>
     </div>
   </div>
   <div class="row w-100 m-0 mt-2 p-0">

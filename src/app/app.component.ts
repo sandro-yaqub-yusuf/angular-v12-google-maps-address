@@ -1,4 +1,5 @@
 import { Component, OnInit, TemplateRef, ViewChild } from "@angular/core";
+import { HttpClient } from '@angular/common/http';
 import { GoogleMap, MapInfoWindow, MapMarker } from '@angular/google-maps';
 import { DomSanitizer } from '@angular/platform-browser';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -15,6 +16,7 @@ export class AppComponent implements OnInit {
   @ViewChild('modalHelp') modalHelp: TemplateRef<any> | undefined;
   
   public dados1 = true;
+  public endereco = '';
   public exibeDetalhes = null;
   public idSelecionado = -1;
   public infoContent = '';
@@ -38,6 +40,7 @@ export class AppComponent implements OnInit {
   public listaClusterDados1: any[] = [];
 
   constructor(
+    private http: HttpClient,
     private modalService: NgbModal,
     private sanitizer: DomSanitizer
   ) {}
@@ -153,6 +156,57 @@ export class AppComponent implements OnInit {
     this.modalService.open( this.modalHelp, { backdrop: 'static', keyboard: false, size: 'lg' } );
   }
 
+  public buscarEndereco(): void {
+    if (!this.endereco) return;
+
+    const apiKey = '[YOUR_KEY_API]';
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(this.endereco)}&key=${apiKey}`;
+
+    this.http.get<any>(url).subscribe(result => {
+      const location = result.results[0]?.geometry?.location;
+
+      if (location) {
+        const { lat, lng } = location;
+
+        this.center = { lat, lng };
+
+        this.listaDados1.push({
+          id: 3,
+          selecionado: false,
+          position: { lat: lat, lng: lng },
+          icon: { url: '../assets/car_pin.png', scaledSize: { height: this.tamanhoPin, width: this.tamanhoPin } },
+          info: `<div class="row m-0">
+                  <div class="col-12 p-0 text-left mapa-detalhe">
+                    <div class="titulo-detalhe"><b>ID 3</b><br></div>
+                    <div class="mt-2"><b>Campo: </b>conteúdo do ID 3 - 1</span><br></div>
+                    <div><b>Campo: </b>conteúdo do ID 3 - 2</span><br></div>
+                    <div><b>Campo: </b>conteúdo do ID 3 - 3</span></div>
+                  </div>
+                </div>`,
+          horaTitulo: '10:11:01',
+          hora: '10:11'
+        });
+
+        this.detalhe.push({
+          id: 3,
+          selecionado: false,
+          titulo: 'Título do ID 3',
+          detalhe1: '<span>Campo: conteúdo do ID 3 - 1</span>',
+          detalhe2: '<span>Campo: conteúdo do ID 3 - 2</span>',
+          detalhe3: '<span>Campo: conteúdo do ID 3 - 3</span>',
+          horaTitulo: '10:11:01',
+          hora: '10:11',
+          position: { lat: lat, lng: lng },
+          icon: { url: '../assets/car_pin.png', scaledSize: { height: this.tamanhoPin, width: this.tamanhoPin } }
+        });
+
+        this.carregarMapa();
+      } else {
+        alert('Endereço não encontrado.');
+      }
+    });
+  }
+
   public carregarDados1(): void {
     this.exibeDetalhes = null;
     this.idSelecionado = -1;
@@ -167,7 +221,7 @@ export class AppComponent implements OnInit {
     this.listaDados1.push({
       id: 1,
       selecionado: false,
-      position: { lat: -23.5001, lng: -46.4001 },
+      position: { lat: -23.4538722, lng: -46.5584518 },
       icon: { url: '../assets/car_pin.png', scaledSize: { height: tamanhoImagem, width: tamanhoImagem } },
       info: `<div class="row m-0">
                <div class="col-12 p-0 text-left mapa-detalhe">
@@ -190,14 +244,14 @@ export class AppComponent implements OnInit {
       detalhe3: '<span>Campo: conteúdo do ID 1 - 3</span>',
       horaTitulo: '10:11:01',
       hora: '10:11',
-      position: { lat: -23.5001, lng: -46.4001 },
+      position: { lat: -23.4538722, lng: -46.5584518 },
       icon: { url: '../assets/car_pin.png', scaledSize: { height: tamanhoImagem, width: tamanhoImagem } }
     });
 
     this.listaDados1.push({
       id: 2,
       selecionado: false,
-      position: { lat: -23.6001, lng: -46.9001 },
+      position: { lat: -23.454235, lng: -46.5530127 },
       icon: { url: '../assets/car_pin.png', scaledSize: { height: tamanhoImagem, width: tamanhoImagem } },
       info: `<div class="row m-0">
                <div class="col-12 p-0 text-left mapa-detalhe">
@@ -220,7 +274,7 @@ export class AppComponent implements OnInit {
       detalhe3: '<span>Campo: conteúdo do ID 2 - 3</span>',
       horaTitulo: '10:21:02',
       hora: '10:21',
-      position: { lat: -23.6001, lng: -46.9001 },
+      position: { lat: -23.454235, lng: -46.5530127 },
       icon: { url: '../assets/car_pin.png', scaledSize: { height: tamanhoImagem, width: tamanhoImagem } }
     });
   }
